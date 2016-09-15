@@ -1,0 +1,158 @@
+// Include the LCD Library
+#include <LiquidCrystal.h>
+
+//initialize variables for sensor pins
+int moistPin = 0;
+int tempPin = 1;
+int lightPin = 2;
+
+//initialize variables to store readings from sensors
+int moistVal = 0;
+int tempVal = 0;
+int lightVal = 0;
+
+//initialize variables for LED pins
+int redPin = 12;
+int greenPin = 11;
+int bluePin = 10;
+
+// initialize the library with the numbers of the interface pins
+LiquidCrystal lcd(7, 6, 5, 4, 3, 2);
+
+void setup()
+{
+  //initialize the serial port
+  Serial.begin(9600);
+  
+  //set LED pins to output mode
+  pinMode(redPin, OUTPUT);
+  pinMode(greenPin, OUTPUT);
+  pinMode(bluePin, OUTPUT);
+  
+  //set LED pins to off
+  digitalWrite(redPin, LOW);
+  digitalWrite(greenPin, LOW);
+  digitalWrite(bluePin, LOW);
+
+  // set up the LCD's number of columns and rows: 
+  lcd.begin(16, 2);
+
+   // initialize digital pin 13 as an output
+   pinMode(13, OUTPUT);
+}
+
+void loop()
+{
+  moistVal = analogRead(moistPin);
+  
+  //display moisture reading on lcd
+  lcd.clear();
+  if (moistVal >= 0 && moistVal<= 100)
+  {
+    lcd.print("Water Me!");
+    digitalWrite(13, HIGH);
+  }
+  else if(moistVal >= 101 && moistVal<= 150) 
+  {
+    lcd.print("Please check soil");
+
+  }
+  else if(moistVal >= 151 && moistVal<= 250)
+  {
+    lcd.print("I'm doing fine!");
+  }
+   else if(moistVal >= 251 && moistVal<= 500)
+  {
+    lcd.print("Don't water me");
+  }
+  else
+  {
+      lcd.print(moistVal);
+  }
+  //turn on LED to blue, others off if moisture pins are touching together
+  if (moistVal > 1000)
+  {
+    blue();
+  }
+  else 
+  { 
+    off();
+  }
+  //wait 4 seconds 
+  delay(4000);
+   //display moisture reading on lcd
+   
+  tempVal = analogRead(tempPin);
+  tempVal = tempVal * 0.048828125; 
+  lcd.clear();
+  lcd.print("Temperature ");
+  lcd.print(tempVal);
+  lcd.print("C");
+  
+  if (tempVal >= 30)
+  {
+    red();
+  }
+  else 
+  { 
+    off();
+    digitalWrite(12, LOW);
+  }
+  delay(4000);
+  
+  lightVal = analogRead(lightPin);
+   //display moisture reading on lcd
+  lcd.clear();
+  lcd.print("Light ");
+  lcd.print(lightVal);
+  
+  //turn on green if light sensor reads 600 or brighter
+  if (lightVal > 600)
+  {
+    green();
+  }
+  else 
+  { 
+    off();
+  }
+
+  delay(4000);
+   Serial.println(tempVal);
+   Serial.println(moistVal);
+}
+
+void blue()
+{
+  digitalWrite(redPin, HIGH);
+  digitalWrite(greenPin, HIGH);
+  digitalWrite(bluePin, LOW);
+}
+
+void red()
+{
+  digitalWrite(redPin, LOW);
+  digitalWrite(greenPin, HIGH);
+  digitalWrite(bluePin, HIGH);
+}
+
+void green()
+{
+  digitalWrite(redPin, HIGH);
+  digitalWrite(greenPin, LOW);
+  digitalWrite(bluePin, HIGH);
+}
+
+void off()
+{
+  digitalWrite(redPin, HIGH);
+  digitalWrite(greenPin, HIGH);
+  digitalWrite(bluePin, HIGH);
+  
+}
+
+void on()
+{
+  digitalWrite(redPin, LOW);
+  digitalWrite(greenPin, LOW);
+  digitalWrite(bluePin, LOW);
+}
